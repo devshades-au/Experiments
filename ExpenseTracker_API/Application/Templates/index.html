@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Include flatpickr styles -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body class="bg-blue-100 py-8 px-4">
+
+<div class="max-w-full mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-4xl">
+  <div class="md:flex">
+    <div class="p-8 w-full">
+      <h2 class="text-2xl font-bold mb-2">Expense Tracker</h2>
+
+      <!-- Form to add a new expense -->
+      <form id="expenseForm" class="mb-4">
+        <input type="hidden" id="expenseId" name="expenseId">
+        <div class="mb-4">
+          <label for="description" class="block text-gray-700 font-bold mb-2">Description:</label>
+          <input type="text" id="description" name="description" class="form-input w-full" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="amount" class="block text-gray-700 font-bold mb-2">Amount:</label>
+          <input type="number" id="amount" name="amount" step="0.01" class="form-input w-full" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="category" class="block text-gray-700 font-bold mb-2">Category:</label>
+          <input type="text" id="category" name="category" class="form-input w-full" required>
+        </div>
+        
+        <div class="mb-4">
+          <label for="expenseDate" class="block text-gray-700 font-bold mb-2">Expense Date:</label>
+          <input type="text" id="expenseDate" name="expenseDate" class="form-input w-full" placeholder="Select date and time" required>
+        </div>
+        
+        <button type="button" id="addExpenseBtn" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add Expense</button>
+        <button type="button" id="editExpenseBtn" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded ml-2 hidden">Save Changes</button>
+        <button type="button" id="cancelEditBtn" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-2 hidden">Cancel</button>
+      </form>
+      
+      <!-- Display area for expenses -->
+      <h2 class="text-2xl font-bold mb-2">Expenses</h2>
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expense Date</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="expenseList" class="bg-white divide-y divide-gray-200"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div style="padding:10px;"><center>Made with ❤️ by <a href="https://github.com/devshades-au"><strong>@Devshades</strong></a><br><br>
+    Developed to experiment with Python Flask, REST API, and Tailwind CSS.<br>
+</center></div>
+
+<!-- Include flatpickr library -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+  // Initialize flatpickr on the expense date input field
+  flatpickr("#expenseDate", {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i", // Customize the datetime format if needed
+    time_24hr: true, // Use 24-hour time format
+    altInput: true, // Show the alternate input field for easier user input
+    altFormat: "F j, Y H:i", // Customize the format of the alternate input field
+    // You can customize more options as needed. See flatpickr documentation for details.
+  });
+
+  // Function to handle form submission and add expense
+  document.getElementById('addExpenseBtn').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Collect form data
+    const description = document.getElementById('description').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value.trim());
+    const category = document.getElementById('category').value.trim();
+    const expenseDate = document.getElementById('expenseDate').value.trim();
+
+    // Validate form data
+    if (!description || !amount || !category || !expenseDate) {
+      alert('All fields are required!');
+      return;
+    }
+
+    // Prepare expense data
+    const expenseData = {
+        description: description,
+      amount: amount,
+      category: category,
+      expenseDate: expenseDate
+    };
+
+    // Send POST request to add expense
+    fetch('/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(expenseData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Expense added:', data);
+      fetchExpenses(); // Refresh expense list
+      clearForm(); // Clear form fields
+    })
+    .catch(error => console.error('Error adding expense:', error));
+  });
+
+  // Function to fetch and display expenses
+  function fetchExpenses() {
+    fetch('/expenses')
+      .then(response => response.json())
+      .then(expenses => {
+        const expenseList = document.getElementById('expenseList');
+        expenseList.innerHTML = '';
+        let totalAmount = 0;
+        expenses.forEach((expense, index) => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="px-6 py-4 whitespace-nowrap">${index}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${expense.description}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${expense.amount}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${expense.category}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${new Date(expense.expenseDate).toLocaleDateString()}</td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <button onclick="deleteExpense(${index})" class="text-red-600">Delete</button>
+              <button onclick="editExpense(${index})" class="ml-2 text-blue-600">Edit</button>
+            </td>
+          `;
+          expenseList.appendChild(row);
+          totalAmount += expense.amount;
+        });
+
+        // Add total row
+        const totalRow = document.createElement('tr');
+        totalRow.innerHTML = `
+          <td colspan="2" class="px-6 py-4 font-bold">Total</td>
+          <td class="px-6 py-4 font-bold">${totalAmount}</td>
+          <td colspan="3" class="px-6 py-4"></td>
+        `;
+        expenseList.appendChild(totalRow);
+      })
+      .catch(error => console.error('Error fetching expenses:', error));
+  }
+
+  // Function to clear form fields
+  function clearForm() {
+    document.getElementById('expenseId').value = '';
+    document.getElementById('description').value = '';
+    document.getElementById('amount').value = '';
+    document.getElementById('category').value = '';
+    document.getElementById('expenseDate').value = '';
+
+    // Change button text to 'Add Expense'
+    document.getElementById('addExpenseBtn').textContent = 'Add Expense';
+    // Hide the 'Save Changes' and 'Cancel' buttons
+    document.getElementById('editExpenseBtn').classList.add('hidden');
+    document.getElementById('cancelEditBtn').classList.add('hidden');
+  }
+
+  // Function to delete an expense by ID
+  function deleteExpense(expenseId) {
+    fetch(`/expenses/${expenseId}`, {
+      method: 'DELETE'
+    })
+    .then(response => {
+      if (response.status === 200) {
+        console.log('Expense deleted successfully');
+        fetchExpenses(); // Refresh expense list
+      } else {
+        console.error('Failed to delete expense:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Error deleting expense:', error));
+  }
+
+  // Function to populate form fields with expense data for editing
+  function editExpense(expenseId) {
+    // Fetch expense details by ID
+    fetch(`/expenses/${expenseId}`)
+      .then(response => response.json())
+      .then(expense => {
+        // Populate form fields with expense data
+        document.getElementById('expenseId').value = expenseId;
+        document.getElementById('description').value = expense.description;
+        document.getElementById('amount').value = expense.amount;
+        document.getElementById('category').value = expense.category;
+        document.getElementById('expenseDate').value = expense.expenseDate;
+
+        // Change button text to 'Save Changes'
+        document.getElementById('addExpenseBtn').textContent = 'Save Changes';
+        // Show the 'Save Changes' and 'Cancel' buttons
+        document.getElementById('editExpenseBtn').classList.remove('hidden');
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+      })
+      .catch(error => console.error('Error fetching expense details:', error));
+  }
+
+  // Function to handle edit expense submission
+  document.getElementById('editExpenseBtn').addEventListener('click', function(event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Collect form data
+    const expenseId = document.getElementById('expenseId').value;
+    const description = document.getElementById('description').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value.trim());
+    const category = document.getElementById('category').value.trim();
+    const expenseDate = document.getElementById('expenseDate').value.trim();
+
+    // Validate form data
+    if (!description || !amount || !category || !expenseDate) {
+      alert('All fields are required!');
+      return;
+    }
+
+    // Prepare expense data
+    const expenseData = {
+      description: description,
+      amount: amount,
+      category: category,
+      expenseDate: expenseDate
+    };
+
+    // Send PUT request to update expense
+    fetch(`/expenses/${expenseId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(expenseData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Expense updated:', data);
+      fetchExpenses(); // Refresh expense list
+      clearForm(); // Clear form fields
+    })
+    .catch(error => console.error('Error updating expense:', error));
+  });
+
+  // Function to handle cancel edit action
+  document.getElementById('cancelEditBtn').addEventListener('click', function() {
+    clearForm(); // Clear form fields
+  });
+
+  // Fetch expenses when the page loads
+  fetchExpenses();
+</script>
+
+</body>
+</html>
