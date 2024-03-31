@@ -8,8 +8,15 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <!-- Include flatpickr styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <style>
+      body { 
+        background-color: cornflowerblue;
+      }
+
+
+    </style>
 </head>
-<body class="bg-blue-100 py-8 px-4">
+<body class="py-8 px-4">
 
 <div class="max-w-full mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-4xl">
   <div class="md:flex">
@@ -201,8 +208,8 @@
         document.getElementById('category').value = expense.category;
         document.getElementById('expenseDate').value = expense.expenseDate;
 
-        // Change button text to 'Save Changes'
-        document.getElementById('addExpenseBtn').textContent = 'Save Changes';
+        // // Change button text to 'Save Changes'
+        // document.getElementById('addExpenseBtn').textContent = 'Save Changes';
         // Show the 'Save Changes' and 'Cancel' buttons
         document.getElementById('editExpenseBtn').classList.remove('hidden');
         document.getElementById('cancelEditBtn').classList.remove('hidden');
