@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container mx-auto my-8">
+    <h2 class="text-3xl font-semibold mb-4">Search Results</h2>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial Number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for asset in search_results %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[1] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[2] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[3] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[4] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[5] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

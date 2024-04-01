@@ -1,0 +1,45 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.x' 
+    addToPath: true
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install dependencies'
+
+# - script: |
+#     pytest tests/  # Run unit tests
+#   displayName: 'Run tests'
+
+- script: |
+    python app.py  # Start the Flask web server (you may need to adjust this command based on your project structure)
+  displayName: 'Run Flask app'
+  continueOnError: true  
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.SourcesDirectory)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
+    replaceExistingArchive: true
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    artifactName: 'drop'
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: ...
+    appName: ...  
+    package: $(Build.ArtifactStagingDirectory)/app.zip
+    startUpCommand: 'gunicorn -b 0.0.0.0:8000 app:app'

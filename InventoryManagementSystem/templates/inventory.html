@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<main class="container mx-auto my-8">
+    <h2 class="text-3xl font-semibold mb-4">Inventory</h2>
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Asset Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Serial Number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th> <!-- New column for actions -->
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for asset in assets %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[1] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[2] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[3] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[4] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ asset[5] }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <a href="/edit_asset/{{ asset[0] }}" class="text-indigo-600 hover:text-indigo-900 mr-2">Edit</a>
+                    <form action="/delete_asset/{{ asset[0] }}" method="post" style="display: inline;">
+                        <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</main>
+{% endblock %}

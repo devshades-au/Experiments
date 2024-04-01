@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <header class="bg-gray-900 text-white py-4">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-semibold">Inventory Management System</h1>
+        </div>
+    </header>
+
+    <nav class="bg-gray-800">
+        <div class="container mx-auto">
+            <ul class="flex justify-center py-4">
+                <li><a href="/" class="text-white hover:text-gray-300 px-4">Home</a></li>
+                <li><a href="/inventory" class="text-white hover:text-gray-300 px-4">Inventory</a></li>
+                <li><a href="/add_asset" class="text-white hover:text-gray-300 px-4">Add New Asset</a></li>
+                <li><a href="/search" class="text-white hover:text-gray-300 px-4">Search</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    {% block content %}{% endblock %}
+
+    <footer class="bg-gray-900 text-white py-4">
+        <div class="container mx-auto">
+            <p>&copy; 2024 Devshades</p>
+        </div>
+    </footer>
+</body>
+</html>
